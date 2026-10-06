@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Weekly Planner</title>
+<meta name="description" content="Daily to-do, weekly progress, productivity rating and habit tracker.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d4728a'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="signin" id="signin" hidden>
+  <div class="box">
+    <h1>Weekly <span>Planner</span></h1>
+    <p>Plan your day, tick things off, and watch your weeks add up.</p>
+    <button class="gbtn" id="googleBtn" type="button">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.8 6C12.3 13.6 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z"/><path fill="#FBBC05" d="M10.4 28.7c-.5-1.4-.7-3-.7-4.7s.3-3.3.7-4.7l-7.8-6C.9 16.6 0 20.2 0 24s.9 7.4 2.6 10.7l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.4 0-11.8-4.3-13.7-10l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>
+      Continue with Google
+    </button>
+    <div class="err" id="signinErr"></div>
+  </div>
+</main>
+<div class="wrap" id="app" hidden>
+  <header class="top">
+    <h1>Weekly <span>Planner</span></h1>
+    <div class="weeknav">
+      <button class="btn icon" id="prev" aria-label="Previous week">&lsaquo;</button>
+      <span class="range num" id="range"></span>
+      <button class="btn icon" id="next" aria-label="Next week">&rsaquo;</button>
+      <button class="btn" id="today">Today</button>
+    </div>
+    <div class="who"><span class="status" id="status">Loading your planner…</span><button class="btn" id="signOut" type="button">Sign out</button></div>
+  </header>
+
+  <section class="row">
+    <!-- 1. Daily to-do -->
+    <div class="card todo">
+      <div class="cap">Daily to-do</div>
+      <div class="dayline"><div><h2 id="selName"></h2><div class="date num" id="selDate"></div></div><span class="lockpill" id="selLock" hidden>Locked</span></div>
+      <div class="progline">
+        <div class="meta"><span><b id="selDone">0</b> of <span id="selTotal">0</span> done</span><span class="num" id="selPct">0%</span></div>
+        <div class="trk"><div class="fill" id="selFill" style="width:0%"></div></div>
+      </div>
+      <ul class="tasks" id="selTasks" data-day=""></ul>
+      <form class="add" id="selAdd"><input id="selInput" placeholder="Add a task" maxlength="120" aria-label="Add a task"><button type="button" aria-label="Add task">+</button></form>
+      <div class="lockednote" id="selLockedNote" hidden>This day has passed. Its progress is final.</div>
+    </div>
+
+    <!-- 2. Overall progress -->
+    <div class="card overall">
+      <div class="cap">Overall progress</div>
+      <div class="charts">
+        <svg id="bar" viewBox="0 0 360 200" role="img" aria-label="Tasks done per day"></svg>
+        <div>
+          <svg id="pie" viewBox="0 0 160 160" role="img" aria-label="Week tasks done versus left"></svg>
+          <div class="pielegend"><span><i class="sw" style="background:var(--rose)"></i>Done</span><span><i class="sw" style="background:var(--band)"></i>Left</span></div>
+        </div>
+      </div>
+      <div class="overallcount num" id="overallCount"></div>
+    </div>
+
+    <!-- 3. Productivity rating -->
+    <div class="card rate">
+      <div class="cap">Focus &amp; productivity</div>
+      <div class="stars" id="stars" role="radiogroup" aria-label="Productivity rating"></div>
+      <div class="ratelabel" id="rateLabel"></div>
+      <div class="weekstars" id="weekStars"></div>
+      <div class="avg" id="avgRate"></div>
+      <div class="focus"><textarea id="focus" placeholder="Weekly focus: what matters most this week?" aria-label="Weekly focus"></textarea></div>
+    </div>
+  </section>
+
+  <!-- 4. Full week -->
+  <section class="card board">
+    <div class="board-head"><h2>Full week</h2><p>Tap a day's name to open it in the daily to-do. Past days are locked.</p></div>
+    <div class="days" id="days"></div>
+  </section>
+
+  <!-- 5. Records -->
+  <section class="card" id="records">
+    <div class="rec-head">
+      <h2>Records</h2>
+      <div class="seg" role="group" aria-label="Record period">
+        <button type="button" data-view="week" aria-pressed="true">Weekly</button>
+        <button type="button" data-view="month" aria-pressed="false">Monthly</button>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="rec-grid">
+      <div>
+        <svg id="trend" viewBox="0 0 520 220" role="img" aria-label="Completion trend"></svg>
+      </div>
+      <div class="cal">
+        <div class="calnav"><button class="btn icon" id="calPrev" type="button" aria-label="Previous month">&lsaquo;</button><b id="calTitle"></b><button class="btn icon" id="calNext" type="button" aria-label="Next month">&rsaquo;</button></div>
+        <div class="calgrid" id="calGrid"></div>
+        <div class="legend"><span>Less</span><i style="background:var(--track)"></i><i style="background:color-mix(in srgb,var(--rose) 30%,var(--track))"></i><i style="background:color-mix(in srgb,var(--rose) 60%,var(--track))"></i><i style="background:var(--rose)"></i><span>More done</span><span style="color:var(--star)">★ rated</span></div>
+      </div>
+    </div>
+    <div class="tablewrap"><table class="rec" id="recTable"></table></div>
+  </section>
+
+  <section class="card">
+    <div class="habits-head">
+      <h2>Habit tracker</h2>
+      <form class="addhabit" id="addHabit">
+        <input id="habitName" placeholder="New habit" maxlength="40" aria-label="New habit name">
+        <button class="btn" type="submit">Add habit</button>
+      </form>
+    </div>
+    <div class="tablewrap"><table id="habitTable"></table></div>
+  </section>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

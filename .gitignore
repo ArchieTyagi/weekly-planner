@@ -1,0 +1,7 @@
+.env
+.env.*
+.vercel
+node_modules
+__pycache__/
+ml/*.csv
+.DS_Store
