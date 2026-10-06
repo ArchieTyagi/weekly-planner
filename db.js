@@ -25,7 +25,11 @@ export async function getUser() {
 }
 
 export function onAuthChange(callback) {
-  supabase.auth.onAuthStateChange((_event, session) => callback(session?.user ?? null));
+  // Supabase locks itself while this listener runs, so any database call
+  // made inside it freezes. setTimeout runs our code just after, instead.
+  supabase.auth.onAuthStateChange((_event, session) => {
+    setTimeout(() => callback(session?.user ?? null), 0);
+  });
 }
 
 export async function signInWithGoogle() {
